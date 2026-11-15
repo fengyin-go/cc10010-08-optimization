@@ -25,20 +25,6 @@ const statuses = [
   "已启用",
   "已停用"
 ]
-const stats = [
-  {
-    "label": "质量指标总数",
-    "value": 0
-  },
-  {
-    "label": "已启用指标",
-    "value": 0
-  },
-  {
-    "label": "待校验指标",
-    "value": 0
-  }
-]
 
 export default function QualityView() {
   const [rows, setRows] = useState<EntryRow[]>([])
@@ -71,6 +57,13 @@ export default function QualityView() {
     }
     reload()
   }
+
+  // 跨模块下游指标只更新受影响项，未引用变更清洗结果的指标状态与结果时间保持不变。
+  const stats = [
+    { label: "质量指标总数", value: rows.length },
+    { label: "已启用指标", value: rows.filter((row) => String(row.status) === "已启用").length },
+    { label: "待校验指标", value: rows.filter((row) => String(row.status) === "待校验").length }
+  ]
 
   return (
     <section className="page" data-module="quality">
@@ -125,7 +118,9 @@ export default function QualityView() {
         <thead>
           <tr>
             {columns.map((column) => <th key={column}>{column}</th>)}
+            <th>指标结果更新时间</th>
             <th>当前状态</th>
+            <th>待校验原因</th>
             <th>可执行动作</th>
           </tr>
         </thead>
@@ -133,7 +128,9 @@ export default function QualityView() {
           {rows.map((row) => (
             <tr key={String(row.id)}>
               {columns.map((column) => <td key={column}>{row[column] ?? '—'}</td>)}
+              <td>{row['指标结果更新时间'] ?? '—'}</td>
               <td>{row.status}</td>
+              <td>{row['待校验原因'] ?? '—'}</td>
               <td className="row-actions">
                 {actions.map((action) => (
                   <button key={action} className="link" type="button" onClick={() => runAction(action, row)}>
@@ -145,7 +142,7 @@ export default function QualityView() {
           ))}
           {rows.length === 0 && (
             <tr>
-              <td className="empty-state" colSpan={columns.length + 2}>暂无质量监控数据，可先登记质量指标</td>
+              <td className="empty-state" colSpan={columns.length + 4}>暂无质量监控数据，可先登记质量指标</td>
             </tr>
           )}
         </tbody>

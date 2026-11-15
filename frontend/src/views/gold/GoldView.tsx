@@ -25,20 +25,6 @@ const statuses = [
   "已启用",
   "已停用"
 ]
-const stats = [
-  {
-    "label": "聚合视图总数",
-    "value": 0
-  },
-  {
-    "label": "已启用视图",
-    "value": 0
-  },
-  {
-    "label": "待校验视图",
-    "value": 0
-  }
-]
 
 export default function GoldView() {
   const [rows, setRows] = useState<EntryRow[]>([])
@@ -72,12 +58,21 @@ export default function GoldView() {
     reload()
   }
 
+  // 规则变更只让真正引用受影响清洗结果的视图进入待校验，数据新鲜度与指标结果不再被清空。
+  const stats = [
+    { label: "聚合视图总数", value: rows.length },
+    { label: "已启用视图", value: rows.filter((row) => String(row.status) === "已启用").length },
+    { label: "待校验视图", value: rows.filter((row) => String(row.status) === "待校验").length }
+  ]
+
   return (
     <section className="page" data-module="gold">
       <header className="page-head">
         <div>
           <h2>聚合层管理管理</h2>
-          <p className="page-desc">维护聚合层视图的输入、执行约束与结果记录，为聚合层管理提供可验证的数据工程流程。</p>
+          <p className="page-desc">
+            维护聚合层视图的输入与物化结果：上游清洗规则变更时，仅引用受影响结果的视图进入待校验，数据新鲜度与已有指标结果保留。
+          </p>
         </div>
         <div className="page-actions">
           <button className="btn primary" type="button" onClick={() => setErrorMessage('聚合视图登记入口尚未接入审批流')}>
@@ -106,6 +101,8 @@ export default function GoldView() {
         ))}
       </p>
 
+      {errorMessage && <p className="error-text">{errorMessage}</p>}
+
       <form className="filter-bar" onSubmit={(event) => { event.preventDefault(); reload() }}>
         {filterFields.map((field) => (
           <label key={field} className="filter-item">
@@ -125,7 +122,9 @@ export default function GoldView() {
         <thead>
           <tr>
             {columns.map((column) => <th key={column}>{column}</th>)}
+            <th>指标结果更新时间</th>
             <th>当前状态</th>
+            <th>待校验原因</th>
             <th>可执行动作</th>
           </tr>
         </thead>
@@ -133,7 +132,9 @@ export default function GoldView() {
           {rows.map((row) => (
             <tr key={String(row.id)}>
               {columns.map((column) => <td key={column}>{row[column] ?? '—'}</td>)}
+              <td>{row['指标结果更新时间'] ?? '—'}</td>
               <td>{row.status}</td>
+              <td>{row['待校验原因'] ?? '—'}</td>
               <td className="row-actions">
                 {actions.map((action) => (
                   <button key={action} className="link" type="button" onClick={() => runAction(action, row)}>
@@ -145,15 +146,14 @@ export default function GoldView() {
           ))}
           {rows.length === 0 && (
             <tr>
-              <td className="empty-state" colSpan={columns.length + 2}>暂无聚合层管理数据，可先登记聚合视图</td>
+              <td className="empty-state" colSpan={columns.length + 4}>暂无聚合层管理数据，可先登记聚合视图</td>
             </tr>
           )}
         </tbody>
       </table>
 
       <footer className="page-foot">
-        <span>共 {total} 条聚合层管理记录</span>
-        {errorMessage && <span className="error-text">{errorMessage}</span>}
+        <span>共 {total} 条聚合层管理记录；待校验视图的历史结果保留，重新启用后按最新口径生效</span>
       </footer>
     </section>
   )

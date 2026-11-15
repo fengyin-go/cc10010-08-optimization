@@ -20,6 +20,16 @@ function readStorage(): Record<string, EntryRow[]> {
   }
   try {
     const parsed = JSON.parse(raw) as Record<string, EntryRow[]>
+    // 迁移：清洗影响域上线后，silver 行新增「上游清洗表」字段、gold/quality 行新增结果时间字段。
+    // 老版本缓存里的旧结构会让规则版本与批次血缘对不上，命中旧结构时丢弃这些模块，回落到新示例。
+    const staleSilver = Array.isArray(parsed.silver)
+      && parsed.silver.length > 0
+      && parsed.silver.every((row) => !('上游清洗表' in row))
+    if (staleSilver) {
+      delete parsed.silver
+      delete parsed.gold
+      delete parsed.quality
+    }
     return { ...fallback, ...parsed }
   } catch {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback))

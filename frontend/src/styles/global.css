@@ -35,3 +35,18 @@ body { margin: 0; background: #f6f8fb; color: #1f2937; }
 .error-text { color: #b42318; }
 .status-legend { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 10px; font-size: 12px; color: var(--muted); }
 .legend-item { background: #eef2f7; border-radius: 999px; padding: 2px 10px; }
+
+/* 清洗规则影响域：影响清单、批次筛选、续跑任务等新增面板 */
+.info-banner { background: #ecfdf3; border: 1px solid #a6f4c5; color: #027a48; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin: 8px 0; }
+.impact-panel { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--brand); border-radius: 8px; padding: 10px 14px; margin: 10px 0; font-size: 13px; }
+.impact-panel ul { margin: 8px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.sub-panel { background: #fbfcfe; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin: 18px 0; }
+.sub-panel h3 { margin: 0 0 10px; font-size: 15px; }
+.rule-editor { flex-wrap: wrap; align-items: center; max-width: 420px; }
+.editor-field { display: flex; flex-direction: column; gap: 2px; flex: 1 1 180px; }
+.editor-field span { font-size: 12px; color: var(--muted); }
+.editor-field input, .filter-item input, .filter-item select { padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; min-width: 120px; }
+.checkbox-item { flex-direction: row; align-items: center; gap: 6px; }
+.checkbox-item input { min-width: 0; }
+.quick-tags { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
